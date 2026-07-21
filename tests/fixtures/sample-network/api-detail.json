@@ -1,0 +1,24 @@
+{
+  "productId": "1005006000000002",
+  "subject": "Gaming Mechanical Keyboard RGB",
+  "salePrice": "59.99",
+  "originalPrice": "89.99",
+  "currency": "USD",
+  "imageModule": {
+    "imagePathList": ["//ae01.alicdn.com/kf/kb1.jpg", "//ae01.alicdn.com/kf/kb2.jpg"]
+  },
+  "skuProperty": [
+    {
+      "propertyId": "14",
+      "propertyName": "Switch Type",
+      "values": [
+        { "propertyValueId": "1", "propertyValueName": "Blue Switch" },
+        { "propertyValueId": "2", "propertyValueName": "Red Switch" }
+      ]
+    }
+  ],
+  "shipFrom": "US Warehouse",
+  "freight": 0,
+  "averageStar": 4.7,
+  "totalValidNum": 890
+}

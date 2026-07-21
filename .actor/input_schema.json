@@ -1,0 +1,53 @@
+{
+  "title": "AliExpress Extraction Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "startUrls": {
+      "title": "AliExpress Product URLs",
+      "type": "array",
+      "description": "List of AliExpress product URLs or product IDs to extract. Supports full URLs and numeric IDs.",
+      "prefill": [
+        { "url": "https://www.aliexpress.com/item/1005006000000000.html" }
+      ],
+      "editor": "requestListSources"
+    },
+    "maxItems": {
+      "title": "Maximum items",
+      "type": "integer",
+      "description": "Maximum number of products to extract",
+      "minimum": 1,
+      "maximum": 10000,
+      "default": 100
+    },
+    "proxyConfiguration": {
+      "title": "Proxy configuration",
+      "type": "object",
+      "prefill": { "useApifyProxy": true, "apifyProxyGroups": ["RESIDENTIAL"] },
+      "description": "Proxy configuration to avoid blocking",
+      "editor": "proxy"
+    },
+    "extendOutputFunction": {
+      "title": "Extend output function",
+      "type": "string",
+      "description": "Optional JavaScript function to extend output. Receives product as argument.",
+      "editor": "javascript",
+      "prefill": "async ({ product }) => { return product; }"
+    },
+    "includeRawData": {
+      "title": "Include raw discovery data",
+      "type": "boolean",
+      "description": "If true, includes raw collected sources for debugging",
+      "default": false
+    },
+    "confidenceThreshold": {
+      "title": "Confidence threshold",
+      "type": "number",
+      "description": "Minimum confidence (0-1) for fields to be included in final output. Lower values include more but less reliable data.",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.3
+    }
+  },
+  "required": ["startUrls"]
+}

@@ -1,0 +1,96 @@
+{
+  "name": "aliexpress-product-extraction-engine",
+  "version": "1.0.0",
+  "description": "Enterprise-grade, resilient AliExpress product extraction engine built for long-term compatibility and Apify Store distribution. Maximizes accuracy via recursive object discovery, window object mining, hydration state discovery, and confidence scoring.",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    ".actor"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/main.ts simple",
+    "dev:advanced": "tsx src/main.ts advanced",
+    "start": "node dist/actor/main.js",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "lint": "eslint src tests --ext .ts,.js,.mjs",
+    "lint:fix": "eslint src tests --ext .ts,.js,.mjs --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json,md}\" \"tests/**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
+    "typecheck": "tsc --noEmit",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "keywords": [
+    "aliexpress",
+    "scraping",
+    "extraction",
+    "crawlee",
+    "playwright",
+    "apify",
+    "ecommerce",
+    "product",
+    "resilient",
+    "enterprise",
+    "price-monitoring",
+    "competitor-analysis",
+    "data-mining",
+    "web-scraping",
+    "retail",
+    "shopping",
+    "sku",
+    "confidence-scoring",
+    "recursive-discovery",
+    "store"
+  ],
+  "dependencies": {
+    "apify": "^3.3.5",
+    "crawlee": "^3.12.2",
+    "playwright": "^1.52.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.20.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-import": "^2.31.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.23.0",
+    "vitest": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.4"
+  },
+  "license": "MIT",
+  "author": "Arena.ai Agent - Principal Architect <https://github.com/>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/aliexpress-product-extraction-engine"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/aliexpress-product-extraction-engine/issues"
+  },
+  "homepage": "https://github.com/your-org/aliexpress-product-extraction-engine#readme",
+  "publishConfig": {
+    "access": "public"
+  }
+}

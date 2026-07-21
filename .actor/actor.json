@@ -1,0 +1,18 @@
+{
+  "actorSpecification": 1,
+  "name": "aliexpress-product-extraction-engine",
+  "title": "AliExpress Product Extraction Engine - Enterprise Grade",
+  "description": "The most resilient, accurate, and maintainable AliExpress product extraction engine. Built with recursive object discovery, hydration state mining, window object discovery, and confidence scoring. Survives frontend changes for years. Extracts 70+ fields including pricing, SKU mapping, shipping, seller, reviews, media and more.",
+  "meta": {
+    "templateId": "ecommerce-aliexpress-extractor",
+    "versionId": "1.0.0"
+  },
+  "input": "./input_schema.json",
+  "dockerfile": "./Dockerfile",
+  "defaultRunOptions": {
+    "build": "latest",
+    "memoryMbytes": 4096
+  },
+  "isPublic": true,
+  "categories": ["ECOMMERCE", "SHOPPING"]
+}

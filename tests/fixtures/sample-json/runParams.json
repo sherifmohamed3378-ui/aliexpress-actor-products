@@ -1,0 +1,42 @@
+{
+  "data": {
+    "productInfoComponent": {
+      "subject": "Smart Watch Ultra 2",
+      "productId": "1005006000000001"
+    },
+    "priceComponent": {
+      "salePrice": { "value": 49.99, "currency": "USD" },
+      "originalPrice": { "value": 99.99, "currency": "USD" },
+      "discount": 50
+    },
+    "imageComponent": {
+      "imagePathList": ["//ae01.alicdn.com/kf/watch1.jpg", "//ae01.alicdn.com/kf/watch2.jpg"],
+      "summImagePathList": ["//ae01.alicdn.com/kf/watch_thumb1.jpg"]
+    },
+    "skuComponent": {
+      "skuProperty": [
+        {
+          "propertyId": "14",
+          "propertyName": "Color",
+          "values": [
+            { "propertyValueId": "10", "propertyValueName": "Silver" },
+            { "propertyValueId": "11", "propertyValueName": "Black" }
+          ]
+        }
+      ],
+      "skuMap": {
+        "14:10": { "skuId": "1200002", "price": 49.99, "stock": 50 },
+        "14:11": { "skuId": "1200003", "price": 52.99, "stock": 20 }
+      }
+    },
+    "storeComponent": {
+      "storeName": "Wearable Tech",
+      "storeId": "654321",
+      "positiveRate": "98.2%"
+    },
+    "tradeComponent": {
+      "tradeCount": 2300,
+      "wishCount": 4100
+    }
+  }
+}
