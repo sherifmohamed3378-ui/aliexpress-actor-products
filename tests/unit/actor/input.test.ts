@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { parseActorInput } from '../../src/actor/input.js';
-
+import { parseActorInput } from '../../../src/actor/input.ts';
 describe('parseActorInput', () => {
   it('applies defaults for empty input', () => {
     const input = parseActorInput(undefined);

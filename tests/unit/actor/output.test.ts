@@ -1,18 +1,21 @@
 import { describe, it, expect } from 'vitest';
 
-import { formatActorErrorOutput, formatActorOutput } from '../../src/actor/output.js';
-import { createField } from '../../src/types/common/Field.js';
-import { SourceType } from '../../src/constants/ConfidenceWeights.js';
-
-describe('formatActorOutput', () => {
-  it('flattens product fields and includes extraction metadata', () => {
-    const record = formatActorOutput({
+import { formatActorErrorOutput, formatActorOutput } from '../../../src/actor/output.js';
+import { createField } from '../../../src/types/common/Field.js';
+import { SourceType } from '../../../src/constants/ConfidenceWeights.js';    const record = formatActorOutput({
       inputUrl: 'https://www.aliexpress.com/item/123.html',
       extractedUrl: 'https://www.aliexpress.com/item/123.html',
       extractionResult: {
         product: {
-          productId: createField('123', { sourceType: SourceType.WINDOW_OBJECT, sourceKey: 'productId', path: 'data.productId', collectorId: 'WindowObjectCollector', depth: 1 }, 0.95, 'productId', { extractionTimeMs: 1, validationPassed: true, normalizationApplied: [], alternativesConsidered: 1 }),
-          title: createField('Test Product', { sourceType: SourceType.WINDOW_OBJECT, sourceKey: 'subject', path: 'data.subject', collectorId: 'WindowObjectCollector', depth: 1 }, 0.9, 'subject', { extractionTimeMs: 1, validationPassed: true, normalizationApplied: [], alternativesConsidered: 1 }),
+          productId: createField('123', { sourceType: SourceType.WINDOW_OBJECT, sourceKey: 'productId', path: 'data.productId', collectorId: 'WindowObjectCollector', depth: 1, timestamp: Date.now() }, 0.95, 'productId', { extractionTimeMs: 1, validationPassed: true, normalizationApplied: [], alternativesConsidered: 1, traversalDepth: 1 }),
+          title: createField('Test Product', {
+ sourceType: SourceType.WINDOW_OBJECT,
+ sourceKey: 'productId',
+ path: 'data.productId',
+ collectorId: 'WindowObjectCollector',
+ depth: 1,
+ timestamp: Date.now()
+}, 0.9, 'subject', { extractionTimeMs: 1, validationPassed: true, normalizationApplied: [], alternativesConsidered: 1, traversalDepth: 1 }),
           subtitle: null,
           url: null,
           canonicalUrl: null,
@@ -122,8 +125,8 @@ describe('formatActorOutput', () => {
     });
     expect(record._extraction?.warnings).toEqual(['Missing images']);
     expect(record._extraction?.performance.totalTimeMs).toBe(50);
-  });
-});
+  ;
+
 
 describe('formatActorErrorOutput', () => {
   it('formats failed extraction records', () => {
