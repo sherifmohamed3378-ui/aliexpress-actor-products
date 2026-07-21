@@ -76,7 +76,7 @@
     "eslint-plugin-import": "^2.31.0",
     "prettier": "^3.4.2",
     "tsx": "^4.19.1",
-    "typescript": "^5.8.3",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.23.0",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^3.2.4"
