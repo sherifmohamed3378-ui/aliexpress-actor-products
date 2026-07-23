@@ -7,12 +7,21 @@
  *
  * Can run as standalone example or as Apify Actor with Crawlee PlaywrightCrawler.
  */
-
+import { normalizeAliExpressUrl } from './utils/urlNormalizer.js';
 import { ProductExtractionEngine } from './core/ProductExtractionEngine.js';
 import { EngineConfigFactory } from './core/config/EngineConfig.js';
 import { logger } from './utils/Logger.js';
 
 const log = logger.child('main');
+
+/**
+ * Helper: Extract Product ID from URL as a fail-safe fallback
+ */
+function extractProductIdFromUrl(url?: string | null): string | null {
+  if (!url) return null;
+  const match = url.match(/\/item\/(\d+)\.html/) || url.match(/item\/(\d+)/);
+  return match?.[1] ?? null;
+}
 
 /**
  * Example 1: Simple extraction from HTML string
@@ -131,10 +140,9 @@ async function advancedExtractionExample(): Promise<void> {
 }
 
 /**
- * Example 3: Apify Actor entry point (if Apify env detected)
+ * Example 3: Apify Actor entry point (Enhanced Version with Fail-safes & Deep Extraction)
  */
 async function apifyActorEntry(): Promise<void> {
-  // Dynamic import to avoid hard dependency when used as library
   let Apify: typeof import('apify') | undefined;
   let crawlee: typeof import('crawlee') | undefined;
 
@@ -159,7 +167,18 @@ async function apifyActorEntry(): Promise<void> {
     confidenceThreshold?: number;
   };
 
-  const startUrls = input?.startUrls ?? [{ url: 'https://www.aliexpress.com/item/1005006000000000.html' }];
+  const rawStartUrls = input?.startUrls ?? [{ url: 'https://www.aliexpress.com/item/1005006000000000.html' }];
+
+// تحويل وتنظيف روابط الأقسام تلقائياً قبل تشغيل الـ Crawler
+const startUrls = rawStartUrls.map((item) => {
+  if (typeof item === 'string') {
+    return normalizeAliExpressUrl(item);
+  }
+  if (item && typeof item === 'object' && item.url) {
+    return { ...item, url: normalizeAliExpressUrl(item.url) };
+  }
+  return item;
+});
   const maxItems = input?.maxItems ?? 10;
 
   const engine = new ProductExtractionEngine(
@@ -172,42 +191,99 @@ async function apifyActorEntry(): Promise<void> {
     ...(proxyConfig ? { proxyConfiguration: proxyConfig as never } : {}),
     maxRequestRetries: 3,
     requestHandler: async ({ request, page }) => {
-      log.info(`Processing ${request.url}`);
+      const currentUrl: string = request.loadedUrl || request.url || '';
+      log.info(`Processing ${currentUrl}`);
 
-      // Capture window objects
+      // 1️⃣ الانتظار حتى تحميل الـ DOM الأساسي
+      await page.waitForLoadState('domcontentloaded').catch(() => {});
+
+      // 2️⃣ عمل Scroll بسيط لتحفيز الـ Dynamic Rendering والـ Lazy Loading
+      await page.evaluate(() => window.scrollBy(0, 400));
+      await page.waitForTimeout(1500);
+
+      // 3️⃣ استخراج الـ Window Objects وتفتيش كود الـ Scripts
       const windowObjects = await page.evaluate(() => {
         const result: Record<string, unknown> = {};
-        const keys = ['runParams', '_dida_config_', '__INITIAL_STATE__', '__NEXT_DATA__'];
+        
+        const keys = [
+          'runParams', 
+          '_dida_config_', 
+          '__AEP_HEADER_DATA__', 
+          '_apolloContext',
+          '__INITIAL_STATE__', 
+          '__NEXT_DATA__'
+        ];
+
         for (const key of keys) {
           const value = (window as unknown as Record<string, unknown>)[key];
           if (value) result[key] = value;
         }
+
+        // لو runParams مش موجود في window بشكل مباشر، نقرأه من كود الـ Script
+        if (!result.runParams) {
+          const scripts = Array.from(document.querySelectorAll('script'));
+          for (const script of scripts) {
+            const content = script.textContent;
+            if (content && content.includes('window.runParams')) {
+              const match = content.match(/window\.runParams\s*=\s*(\{.*?\});/s);
+              if (match && match[1]) {
+                try {
+                  result.runParams = JSON.parse(match[1]);
+                  break;
+                } catch {
+                  // Ignore JSON parse errors
+                }
+              }
+            }
+          }
+        }
+
         return result;
       });
 
+      // 4️⃣ استخراج الـ Product ID المباشر من الـ URL كخط دفاع أخير
+      const fallbackProductId = extractProductIdFromUrl(currentUrl);
+      if (fallbackProductId) {
+        if (!windowObjects.runParams) {
+          windowObjects.runParams = { data: { productId: fallbackProductId } };
+        } else if (typeof windowObjects.runParams === 'object') {
+          const runParamsObj = windowObjects.runParams as Record<string, any>;
+          if (!runParamsObj.data) runParamsObj.data = {};
+          if (!runParamsObj.data.productId) {
+            runParamsObj.data.productId = fallbackProductId;
+          }
+        }
+      }
+
       const html = await page.content();
 
+      // 5️⃣ تشغيل الـ Extraction Engine
       const extractionResult = await engine.extract({
-        url: request.loadedUrl ?? request.url,
+        url: currentUrl,
         html,
         windowObjects,
       });
 
+      const finalProductId = extractionResult.product.productId?.value || fallbackProductId;
+
       await Apify.Actor.pushData({
         inputUrl: request.url,
-        extractedUrl: request.loadedUrl ?? request.url,
-        product: extractionResult.product,
+        extractedUrl: currentUrl,
+        productId: finalProductId,
+        product: {
+          ...extractionResult.product,
+          productId: finalProductId ? { value: finalProductId, confidence: 1 } : extractionResult.product.productId,
+        },
         performance: extractionResult.performance,
       });
     },
   };
 
   const crawler = new crawlee.PlaywrightCrawler(crawlerOptions);
-
   await crawler.run(startUrls.slice(0, maxItems));
 }
 
-// Main execution
+// Main execution switch
 async function main(): Promise<void> {
   const mode = process.argv[2] ?? 'simple';
 
@@ -231,9 +307,10 @@ async function main(): Promise<void> {
   }
 }
 
-// Run if executed directly
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('main.ts')) {
-  main().catch(err => {
+// Run if executed directly (Safely typed string fallback)
+const currentScript: string = process.argv[1] || '';
+if (currentScript.length > 0 && (currentScript.endsWith('main.ts') || currentScript.endsWith('main.js'))) {
+  main().catch((err: unknown) => {
     log.error('Main failed', { error: String(err) });
     process.exit(1);
   });

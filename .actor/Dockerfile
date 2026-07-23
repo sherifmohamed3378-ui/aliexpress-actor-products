@@ -1,10 +1,13 @@
 FROM apify/actor-node-playwright-chrome:22-1.52.0
 
-COPY package.json ./
+# 1. نسخ كل الملفات مع نقل الملكية للمستخدم myuser لمنع مشاكل الصلاحيات
+COPY --chown=myuser:myuser . ./
+
+# 2. تثبيت الباقات
 RUN npm install --include=dev
 
-COPY . ./
-
+# 3. بناء مشروع التايب سكريبت
 RUN npm run build
 
-CMD npm run start
+# 4. تشغيل الـ Actor
+CMD ["npm", "start"]

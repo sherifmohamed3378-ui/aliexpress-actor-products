@@ -10,6 +10,9 @@ export interface StartUrl {
 
 export interface ActorInput {
   readonly startUrls: readonly StartUrl[];
+  readonly country: string;
+  readonly currency: string;
+  readonly locale: string;
   readonly maxItems: number;
   readonly confidenceThreshold: number;
   readonly includeRawData: boolean;
@@ -18,6 +21,9 @@ export interface ActorInput {
 
 const DEFAULT_MAX_ITEMS = 100;
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.3;
+const DEFAULT_COUNTRY = 'US';
+const DEFAULT_CURRENCY = 'USD';
+const DEFAULT_LOCALE = 'en_US';
 
 const DEFAULT_START_URLS: readonly StartUrl[] = [
   { url: 'https://www.aliexpress.com/item/1005006000000000.html' },
@@ -44,6 +50,27 @@ function parseStartUrls(raw: unknown): readonly StartUrl[] {
   }
 
   return urls.length > 0 ? urls : DEFAULT_START_URLS;
+}
+
+function parseCountry(raw: unknown): string {
+  if (typeof raw === 'string' && raw.trim().length > 0) {
+    return raw.trim().toUpperCase();
+  }
+  return DEFAULT_COUNTRY;
+}
+
+function parseCurrency(raw: unknown): string {
+  if (typeof raw === 'string' && raw.trim().length > 0) {
+    return raw.trim().toUpperCase();
+  }
+  return DEFAULT_CURRENCY;
+}
+
+function parseLocale(raw: unknown): string {
+  if (typeof raw === 'string' && raw.trim().length > 0) {
+    return raw.trim();
+  }
+  return DEFAULT_LOCALE;
 }
 
 function parseMaxItems(raw: unknown): number {
@@ -79,6 +106,9 @@ export function parseActorInput(raw: unknown): ActorInput {
 
   const parsed: ActorInput = {
     startUrls: parseStartUrls(input.startUrls),
+    country: parseCountry(input.country),
+    currency: parseCurrency(input.currency),
+    locale: parseLocale(input.locale),
     maxItems: parseMaxItems(input.maxItems),
     confidenceThreshold: parseConfidenceThreshold(input.confidenceThreshold),
     includeRawData: parseIncludeRawData(input.includeRawData),

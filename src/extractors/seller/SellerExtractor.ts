@@ -18,16 +18,24 @@ function parseSellerValue(value: unknown): SellerValue | null {
     if (!name) return null;
     return { name, id: '' };
   }
+
   if (isObject(value)) {
     const o = value as Record<string, unknown>;
-    const name = TextNormalizer.normalize(o['storeName'] ?? o['sellerName'] ?? o['shopName'] ?? o['name'] ?? value);
+    // ✅ تم حذف `?? value` اللي كانت بتخليه يقرأ العنوان من الـ Context
+    const rawName = o['storeName'] ?? o['sellerName'] ?? o['shopName'] ?? o['name'];
+    if (typeof rawName !== 'string' && typeof rawName !== 'number') return null;
+
+    const name = TextNormalizer.normalize(rawName);
     if (!name) return null;
+
     const id = o['storeId'] ?? o['sellerId'] ?? o['shopId'] ?? o['sellerAdminSeq'] ?? '';
     const urlRaw = o['storeUrl'];
     const levelRaw = o['level'];
+
     let result: SellerValue = { name, id: String(id) };
     if (typeof urlRaw === 'string') result = { ...result, url: urlRaw };
     if (typeof levelRaw === 'string') result = { ...result, level: levelRaw };
+
     return result;
   }
   return null;
@@ -87,7 +95,9 @@ export class StoreUrlExtractor extends BaseExtractor<string> {
 export class StoreLevelExtractor extends BaseExtractor<string> {
   override readonly id: string = 'storeLevel';
   override readonly signals = ['storeLevel', 'sellerLevel', 'level', 'storeRank'] as const;
+
   protected override parseEntry(entry: FoundEntry): string | null {
+    if (typeof entry.value !== 'string') return null;
     return TextNormalizer.normalize(entry.value);
   }
 }
@@ -95,6 +105,7 @@ export class StoreLevelExtractor extends BaseExtractor<string> {
 export class FollowersExtractor extends BaseExtractor<number> {
   override readonly id: string = 'followers';
   override readonly signals = ['followers', 'fans', 'followerCount', 'followCount'] as const;
+
   protected override parseEntry(entry: FoundEntry): number | null {
     if (typeof entry.value === 'number') return Math.floor(entry.value);
     if (typeof entry.value === 'string') {
@@ -108,6 +119,7 @@ export class FollowersExtractor extends BaseExtractor<number> {
 export class PositiveFeedbackExtractor extends BaseExtractor<number> {
   override readonly id: string = 'positiveFeedback';
   override readonly signals = ['positiveRate', 'positiveFeedback', 'feedbackRate', 'sellerPositiveRate'] as const;
+
   protected override parseEntry(entry: FoundEntry): number | null {
     if (typeof entry.value === 'number') {
       return entry.value > 1 ? entry.value / 100 : entry.value;

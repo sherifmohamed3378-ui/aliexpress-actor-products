@@ -12,6 +12,27 @@
       ],
       "editor": "requestListSources"
     },
+    "country": {
+      "title": "Ship to Country Code",
+      "type": "string",
+      "description": "2-letter country code (e.g. US, SA, EG, AE, GB)",
+      "default": "US",
+      "editor": "textfield"
+    },
+    "currency": {
+      "title": "Currency Code",
+      "type": "string",
+      "description": "3-letter currency code (e.g. USD, SAR, EGP, EUR)",
+      "default": "USD",
+      "editor": "textfield"
+    },
+    "locale": {
+      "title": "Language / Locale",
+      "type": "string",
+      "description": "Language code (e.g. en_US, ar_MA, fr_FR)",
+      "default": "en_US",
+      "editor": "textfield"
+    },
     "maxItems": {
       "title": "Maximum items",
       "type": "integer",
