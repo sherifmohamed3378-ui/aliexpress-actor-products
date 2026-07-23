@@ -1,7 +1,7 @@
 /**
  * PlaywrightCrawler setup for AliExpress product pages with selector-wait & inline script extraction.
  */
-
+import { normalizeAliExpressUrl } from '../utils/urlNormalizer.js';
 import { PlaywrightCrawler } from 'crawlee';
 import type { ProxyConfiguration } from 'crawlee';
 
@@ -27,7 +27,7 @@ function extractProductIdFromUrl(url: string): string | null {
 
 export async function runProductCrawler(options: ProductCrawlerOptions): Promise<void> {
   const { engine, input, proxyConfiguration, pushData } = options;
-  const startUrls = input.startUrls.map((s) => s.url).slice(0, input.maxItems);
+  const startUrls = input.startUrls.map((s) => normalizeAliExpressUrl(s.url)).slice(0, input.maxItems);
 
   // القيم القادمة من الـ Input (مع قيود أمان إضافية للقيم الافتراضية)
   const targetCountry = (input.country || 'US').toUpperCase();
